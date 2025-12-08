@@ -8,11 +8,11 @@ import { errorHandler, routeNotFound } from "./middleware/errorMiddleware.js";
 import routes from "./routes/index.js"
 
 
-
 dotenv.config();
 
 //database connection
 dbConnection();
+
 
 
 const PORT= process.env.PORT ||5000

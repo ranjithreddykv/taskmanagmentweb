@@ -11,14 +11,16 @@ import { Fragment, useEffect, useState } from "react";
 import { BsChevronExpand } from "react-icons/bs";
 import { MdCheck } from "react-icons/md";
 import { getInitials } from "../utils/index.js";
+import { useGetTeamListQuery } from "../redux/slices/api/userApiSlice.js";
 const UserList = ({ setTeam, team }) => {
-  const data = users;
+  const {data} = useGetTeamListQuery();
+  
   const [selectedUsers, setSelectedUsers] = useState([]);
   const handleChange = (el) => {
     setSelectedUsers(el);
     setTeam(el?.map((u) => u._id));
   };
-
+  
   useEffect(() => {
     if (team?.length < 1) {
       data && setSelectedUsers([data[0]]);

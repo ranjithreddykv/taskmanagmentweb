@@ -27,21 +27,21 @@ const Dashboard = () => {
     {
       _id: "2",
       label: "COMPLETED TASKS",
-      total: data?.completedTasks || 0,
+      total: data?.completedTasksCount || 0,
       icon: <AiOutlineCheckCircle />,
       bg: "bg-[#059669]",
     },
     {
       _id: "3",
       label: "TASK IN PROGRESS",
-      total: data?.inProgressTasks || 0,
+      total: data?.inProgressCount || 0,
       icon: <AiOutlineClockCircle />,
       bg: "bg-[#f59e0b]",
     },
     {
       _id: "4",
       label: "TODOS",
-      total: data?.todos || 0,
+      total: data?.todoTasksCount || 0,
       icon: <FaTasks />,
       bg: "bg-[#7c3aed]",
     },
@@ -60,7 +60,7 @@ const Dashboard = () => {
       <div className="w-full flex flex-col md:flex-row gap-4 2xl:gap-10 py-8">
         {/* left */}
         <div className="w-3/4">
-          <TaskTable tasks={data?.last10Task} />
+          <TaskTable tasks={data?.last10Tasks} />
         </div>
         {/* right */}
         <div >

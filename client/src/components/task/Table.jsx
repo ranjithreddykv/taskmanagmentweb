@@ -8,7 +8,7 @@ import {
 import { BiMessageAltDetail } from "react-icons/bi";
 import { FaList } from "react-icons/fa";
 import clsx from "clsx";
-import { tasks } from "../../assets/data";
+// import { tasks } from "../../assets/data";
 import { BGS, formatDate, PRIORITYSTYLES, TASK_TYPE } from "../../utils";
 import Button from "../Button";
 import UserInfo from "../user/UserInfo";
@@ -122,7 +122,7 @@ const TableRow = ({ task, onDelete }) => (
   </tr>
 );
 
-const Table = () => {
+const Table = ({tasks}) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [selected, setSelected] = useState(null);
 

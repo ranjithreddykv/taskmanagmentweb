@@ -1,39 +1,63 @@
 import Notice from "../models/notification.js";
 import Task from "../models/task.js";
 import User from "../models/user.js";
-
+import fs from "fs";
+import { uploadOnCloduinary } from "../utils/cloudinary.js";
+import mongoose from "mongoose";
 export const createTask = async (req, res) => {
+  const filePathsToClean = [];
   try {
-    const { title, team, stage, date, priority, assets } = req.body;
+    const { title, team, stage, date, priority } = req.body;
+    console.log(team);
+    
+    let assetUrls = [];
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        filePathsToClean.push(file.path);
+
+        const result = await uploadOnCloduinary(file.path);
+        if (result && result.secure_url) {
+          assetUrls.push(result.secure_url);
+        }
+      }
+    }
     const task = await Task.create({
       title,
       team,
       stage: stage.toLowerCase(),
       date,
       priority: priority.toLowerCase(),
-      assets,
+      assets: assetUrls,
     });
-
+    console.log(task);
+    //Create Notification to team whom the task was assigned
     let text = "New task has been assigned to you";
     if (task.team.length > 1)
-      text = text + `and ${task.team.length - 1} others `;
+      text = text + ` and ${task.team.length - 1} others`;
 
-    text =
-      text +
-      `The task priority is set a ${
-        task.priority
-      } priority , so check and act accordingly. The task date is ${task.date.toDateString()}. Thank you!!!`;
+    // Simplify the text construction and ensure date is correctly formatted for display
+    text = `${text}. The task priority is set as ${
+      task.priority
+    } priority. Please check and act accordingly. The task date is ${new Date(
+      task.date
+    ).toDateString()}. Thank you!`;
 
     await Notice.create({
-      team,
+      // Use the corrected array of IDs
+      team: team,
       text,
       task: task._id,
     });
+
     res
       .status(200)
       .json({ status: true, message: "Task created successfully." });
   } catch (error) {
-    return res.status(400).json({ status: false, message: error.message });
+    console.error("Task Createion Error", error);
+    const statusCode = error.name === "ValidationError" ? 400 : 500;
+    return res
+      .status(statusCode)
+      .json({ status: false, message: error.message });
   }
 };
 
@@ -117,11 +141,10 @@ export const dashboardStatistics = async (req, res) => {
           .sort({ _id: -1 });
 
     // selecting all active users
-    const users = (
-      await User.find({ isActive: true })
-        .select("name tile role isAdmin createdAt")
-        .limit(10)
-    ).toSorted({ _id: -1 });
+    const users = await User.find({ isActive: true })
+      .select("name title role isAdmin createdAt")
+      .limit(10)
+      .sort({ _id: -1 });
 
     //group task by stage and calculate counts
     const groupTasks = allTasks.reduce((result, task) => {
@@ -140,17 +163,34 @@ export const dashboardStatistics = async (req, res) => {
         result[priority] = (result[priority] || 0) + 1;
         return result;
       }, {})
-    ).map(([name, total]) => {
-      name, total;
-    });
+    ).map(([name, total]) => ({
+      name,
+      total,
+    }));
 
     //calculate total tasks
     const totalTasks = allTasks.length;
     const last10Tasks = allTasks?.slice(0, 10);
+    let completedTasksCount = 0;
+    let todoTasksCount = 0;
+    let inProgressCount = 0;
 
+    for (const task of allTasks) {
+      if (task.stage === "completed") {
+        completedTasksCount++;
+      } else if (task.stage === "todo") {
+        todoTasksCount++;
+      } else if (task.stage === "in progress") {
+        inProgressCount++;
+      }
+    }
+    // console.log(last10Tasks);
     const summary = {
       totalTasks,
       last10Tasks,
+      completedTasksCount,
+      todoTasksCount,
+      inProgressCount,
       users: isAdmin ? users : [],
       tasks: groupTasks,
       graphData: groupData,
@@ -161,6 +201,7 @@ export const dashboardStatistics = async (req, res) => {
       message: "Dashboard data fetched successfully",
     });
   } catch (error) {
+    console.log(error.message);
     return res.status(400).json({ status: false, message: error.message });
   }
 };

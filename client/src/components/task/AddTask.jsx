@@ -7,16 +7,16 @@ import UserList from "../UserList";
 import SelectedList from "../SelectedList";
 import { BiImages } from "react-icons/bi";
 import Button from "../Button";
-import {toast} from "sonner"
-
+import { toast } from "sonner";
 
 import {
   useCreateTaskMutation,
+  useGetAllTaskQuery,
   useUpdateTaskMutation,
 } from "../../redux/slices/api/taskApiSlice.js";
+
 const LISTS = ["TODO", "IN PROGRESS", "COMPLETED"];
 const PRIORITY = ["HIGH", "MEDIUM", "NORMAL", "LOW"];
-const uploadedFileURLs = [];
 const AddTask = ({ open, setOpen }) => {
   const task = "";
   const {
@@ -31,67 +31,43 @@ const AddTask = ({ open, setOpen }) => {
     task?.priority?.toUpperCase() || PRIORITY[2]
   );
   const [assets, setAssets] = useState([]);
-  const [uploading, setUploading] = useState(false);
 
   const [createTask, { isLoading }] = useCreateTaskMutation();
-  const [udpateTask, { isLoading: isUpdating }] = useUpdateTaskMutation();
-  const URLS = task?.assets ? [...task.assets] : [];
+  const [updateTask, { isLoading: isUpdating }] = useUpdateTaskMutation();
+  const { refetch } = useGetAllTaskQuery();
   const submitHandler = async (data) => {
-    for (const file of assets) {
-      setUploading(true);
-      try {
-        await uploadFile(file);
-      } catch (error) {
-        console.error("Error uploading file:", error.message);
-        return;
-      } finally {
-        setUploading(false);
-      }
-    }
     try {
-      const newData = {
-        ...data,
-        assets: [...URLS, ...uploadedFileURLs],
-        team,
-        stage,
-        priority,
-      };
-      const res = task?._id
-        ? await udpateTask({ ...newData, _id: task._id }).unwrap()
-        : await createTask(newData).unwrap();
-        toast.success(res.message);
-        setTimeout(()=>{
-          setOpen(false);
-        },500);
+      const formData = new FormData();
+      formData.append("title", data?.title);
+      formData.append("date", data.date);
+      formData.append("priority", priority);
+      
+      formData.append("stage", stage);
+      team.forEach((id)=>{
+        formData.append("team",id);
+        console.log(id);
+      })
+      
+      assets.forEach((file)=>{
+        formData.append("assets",file);
+      })
+      
+      const res = task._id
+        ? await updateTask({ id: task._id, data: formData })
+        : await createTask(formData);
+      console.log(res);
+      toast.success(res.message);
+      setTimeout(() => {
+        setOpen(false);
+      }, 500);
     } catch (error) {
       console.log(error);
-      toast.error(error?.data?.message || error.error);
+      toast.error(error.message);
     }
   };
 
   const handleSelect = (e) => {
-    setAssets(e.target.files);
-  };
-
-  const uploadFile = async (file) => {
-    const data = new FormData();
-    data.append("file", file);
-    data.append("upload_preset", "unsigned_upload");
-    data.append("cloud_name", import.meta.env.VITE_APP_CLOUD_NAME);
-
-    const res = await fetch(
-      `https://api.cloudinary.com/v1_1/${
-        import.meta.env.VITE_APP_CLOUD_NAME
-      }/image/upload`,
-      {
-        method: "POST",
-        body: data,
-      }
-    );
-
-    const json = await res.json();
-    console.log(json.secure_url);
-    return json.secure_url;
+    setAssets([...assets, ...e.target.files]);
   };
 
   return (
@@ -122,7 +98,6 @@ const AddTask = ({ open, setOpen }) => {
 
           {/* Team Selection */}
           <UserList setTeam={setTeam} team={team} />
-
           {/* Stage & Date */}
           <div className="flex flex-col sm:flex-row gap-4">
             <SelectedList
@@ -177,9 +152,13 @@ const AddTask = ({ open, setOpen }) => {
               onClick={() => setOpen(false)}
               label="Cancel"
             />
-            {uploading ? (
+            {isLoading ? (
               <span className="text-sm py-2 text-red-500 text-center sm:text-left">
-                Uploading assets...
+                Creating Task ....
+              </span>
+            ) : isUpdating ? (
+              <span className="text-sm py-2 text-red-500 text-center sm:text-left">
+                Updating Task ....
               </span>
             ) : (
               <Button

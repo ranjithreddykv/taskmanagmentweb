@@ -47,8 +47,8 @@ const taskSchema = new Schema(
         tag: { type: String },
       },
     ],
-
-    assets: [String],
+    assets:[String],
+    // assets: [{url:{type:String},public_id:{type:String}}],
 
     team: [{ type: Schema.Types.ObjectId, ref: "User", default: [] }],
 
