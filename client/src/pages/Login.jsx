@@ -10,8 +10,6 @@ import { toast } from "sonner";
 import { setCredentials } from "../redux/slices/authSlice.js";
 import Loading from "../components/Loader.jsx";
 
-
-
 const Login = () => {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
@@ -28,12 +26,20 @@ const Login = () => {
   const submitHandler = async (data) => {
     try {
       const result = await login(data);
-      toast.message("Login Successfully !");
+      console.log(result);
+      if (result.error) {
+        console.log(result.error);
+        const errorMessage =
+          result.error.data?.message || "An unknown error occoured";
+        toast.error(errorMessage);
+        return;
+      }
+      toast.success("Login Successfully!");
       dispatch(setCredentials(result));
-      navigate("/");
+      navigate("/dashboard");
     } catch (error) {
-      console.log(error);
-      toast.error(error?.data?.message || error.message);
+      console.log("Unexpected error:", error);
+      toast.error("An unexepected application error occurred");
     }
   };
   useEffect(() => {

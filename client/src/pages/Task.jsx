@@ -30,9 +30,22 @@ const Task = () => {
   const params = useParams();
   const [selected, setSelected] = useState(0);
   const [open, setOpen] = useState(false);
-  const status = params?.status || "";
-  const {data,isLoading} = useGetAllTaskQuery({strQuery:status ,isTrashed:"",search:""})
-  if (isLoading) return <div className="py-10"> <Loader/></div>
+  const status =
+    params?.status === "in-progress" ? "in progress" : params?.status || "";
+
+  const { data, isLoading } = useGetAllTaskQuery({
+    stage: status,
+    isTrashed: "",
+    search: "",
+  });
+  console.log(data);
+  if (isLoading)
+    return (
+      <div className="py-10">
+        {" "}
+        <Loader />
+      </div>
+    );
 
   return (
     <div className="w-full relative">
@@ -64,7 +77,11 @@ const Task = () => {
           )}
         </Tabs>
 
-        {selected === 0 ? <BoardView tasks={data?.tasks} /> : <Table tasks={data?.tasks} />}
+        {selected === 0 ? (
+          <BoardView tasks={data?.tasks} />
+        ) : (
+          <Table tasks={data?.tasks} />
+        )}
       </div>
 
       {/* Add Task Modal - Render on Top */}

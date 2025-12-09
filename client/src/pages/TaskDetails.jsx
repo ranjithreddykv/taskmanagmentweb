@@ -5,7 +5,7 @@ import Tabs from "../components/Tabs";
 import { FaBug, FaTasks, FaThumbsUp, FaUser } from "react-icons/fa";
 import { GrInProgress } from "react-icons/gr";
 import { BGS, getInitials, PRIORITYSTYLES, TASK_TYPE } from "../utils";
-import Activites from "../components/Activites"
+import Activites from "../components/Activites";
 import {
   MdAttachFile,
   MdKeyboardArrowDown,
@@ -19,6 +19,8 @@ import { RxActivityLog } from "react-icons/rx";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { tasks } from "../assets/data";
+import { useGetTaskDetailQuery } from "../redux/slices/api/taskApiSlice";
+import Loader from "../components/Loader";
 
 const assets = [
   "https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d",
@@ -44,12 +46,13 @@ const TABS = [
   { title: "Activities/TimeLine", icon: <RxActivityLog /> },
 ];
 
-
-
 const TaskDetails = () => {
   const { id } = useParams();
+  const { data , isLoading } = useGetTaskDetailQuery({ id });
+
   const [selected, setSelected] = useState(0);
-  const task = tasks[0];
+  const task = data?.task;
+  if(isLoading) return <Loader/>
   return (
     <div className="w-full flex flex-col gap-3 mb-4 overflow-y-hidden">
       <h1 className="text-2xl text-gray-600 font-bold">{task?.title}</h1>
@@ -173,7 +176,7 @@ const TaskDetails = () => {
             </div>
           </>
         ) : (
-            <Activites activity={task?.activities} id={id} />
+          <Activites activity={task?.activities} id={id} />
         )}
       </Tabs>
     </div>
