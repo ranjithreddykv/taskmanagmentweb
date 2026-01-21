@@ -8,6 +8,7 @@ import {
   duplicateTask,
   getTask,
   getTasks,
+  getTrashedTasks,
   postTaskActivity,
   trashTask,
   updateTask,
@@ -26,7 +27,7 @@ router.get("/:id", protectRoute, getTask);
 router.put("/create-subtask/:id", protectRoute, isAdminRoute, createSubTask);
 router.put("/update/:id", protectRoute, isAdminRoute, updateTask);
 router.put("/:id", protectRoute, isAdminRoute, trashTask);
-
+router.get("/trashed-tasks",protectRoute,getTrashedTasks);
 router.delete(
   "/delete-restore/:id",
   protectRoute,

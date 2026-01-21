@@ -10,8 +10,9 @@ import Title from "../components/Title";
 import Button from "../components/Button";
 import clsx from "clsx";
 import { PRIORITYSTYLES, TASK_TYPE } from "../utils";
-import { tasks } from "../assets/data";
+
 import ConfirmationDialog from "../components/Dialog";
+import { useGetAllTaskQuery } from "../redux/slices/api/taskApiSlice";
 
 const ICONS = {
   high: <MdKeyboardArrowUp />,
@@ -21,6 +22,9 @@ const ICONS = {
 };
 
 const Trash = () => {
+  
+  const { data } = useGetAllTaskQuery({stage:"",isTrashed:true,search:""});
+  const tasks=data?.tasks;
   const [openDialog, setOpenDialog] = useState(false);
   const [open, setOpen] = useState(false);
   const [msg, setMsg] = useState(null);
@@ -126,8 +130,8 @@ const Trash = () => {
             <table className="w-full mb-5">
               <TableHeader />
               <tbody>
-                {tasks?.map((tk, id) => (
-                  <TableRow key={id} item={tk} />
+                {tasks?.map((tk, _id) => (
+                  <TableRow key={_id} item={tk} />
                 ))}
               </tbody>
             </table>

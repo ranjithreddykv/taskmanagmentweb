@@ -8,8 +8,7 @@ export const createTask = async (req, res) => {
   const filePathsToClean = [];
   try {
     const { title, team, stage, date, priority } = req.body;
-    console.log(team);
-    
+
     let assetUrls = [];
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
@@ -29,7 +28,7 @@ export const createTask = async (req, res) => {
       priority: priority.toLowerCase(),
       assets: assetUrls,
     });
-    console.log(task);
+
     //Create Notification to team whom the task was assigned
     let text = "New task has been assigned to you";
     if (task.team.length > 1)
@@ -214,6 +213,7 @@ export const getTasks = async (req, res) => {
     if (stage) {
       query.stage = stage;
     }
+
     let queryResult = Task.find(query)
       .populate({
         path: "team",
@@ -235,13 +235,14 @@ export const getTasks = async (req, res) => {
 export const getTask = async (req, res) => {
   try {
     const { id } = req.params;
+
     const task = await Task.findById(id)
       .populate({
         path: "team",
         select: "name title role email",
       })
       .populate({
-        path: "activites.by",
+        path: "activities.by",
         select: "name",
       })
       .sort({ _id: -1 });
@@ -251,6 +252,7 @@ export const getTask = async (req, res) => {
       task,
     });
   } catch (error) {
+    console.log(error.message);
     return res.status(400).json({ status: false, message: error.message });
   }
 };
@@ -296,11 +298,21 @@ export const updateTask = async (req, res) => {
 };
 export const trashTask = async (req, res) => {
   try {
-    const { id } = req.params();
+    const { id } = req.params;
+    console.log(id);
     await Task.findByIdAndUpdate(id, { isTrashed: true });
     return res
       .status(200)
       .json({ status: true, message: "Task trashed successfully" });
+  } catch (error) {
+    return res.status(400).json({ status: false, message: error.message });
+  }
+};
+export const getTrashedTasks = async (req, res) => {
+  try {
+    const trashedTasks = await Task.find({ isTrashed: true });
+    console.log("trashedTasks :",trashedTasks);
+    return res.statsu(200).json({status:true,trashedTasks})
   } catch (error) {
     return res.status(400).json({ status: false, message: error.message });
   }

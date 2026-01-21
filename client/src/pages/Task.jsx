@@ -10,7 +10,6 @@ import { IoMdAdd } from "react-icons/io";
 import Tabs from "../components/Tabs";
 import TaskTitle from "../components/task/TaskTitle.jsx";
 import BoardView from "../components/BoardView";
-import { tasks } from "../assets/data.js";
 import Table from "../components/task/Table.jsx";
 import AddTask from "../components/task/AddTask.jsx";
 import { useGetAllTaskQuery } from "../redux/slices/api/taskApiSlice.js";
@@ -32,13 +31,11 @@ const Task = () => {
   const [open, setOpen] = useState(false);
   const status =
     params?.status === "in-progress" ? "in progress" : params?.status || "";
-
   const { data, isLoading } = useGetAllTaskQuery({
     stage: status,
     isTrashed: "",
     search: "",
   });
-  console.log(data);
   if (isLoading)
     return (
       <div className="py-10">

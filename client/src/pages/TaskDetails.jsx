@@ -8,6 +8,7 @@ import { BGS, getInitials, PRIORITYSTYLES, TASK_TYPE } from "../utils";
 import Activites from "../components/Activites";
 import {
   MdAttachFile,
+  MdCancel,
   MdKeyboardArrowDown,
   MdKeyboardArrowUp,
   MdKeyboardDoubleArrowUp,
@@ -51,6 +52,7 @@ const TaskDetails = () => {
   const { data , isLoading } = useGetTaskDetailQuery({ id });
 
   const [selected, setSelected] = useState(0);
+  const [previewImg,setPreviewImg]=useState(null);
   const task = data?.task;
   if(isLoading) return <Loader/>
   return (
@@ -168,11 +170,31 @@ const TaskDetails = () => {
                       key={index}
                       src={el}
                       alt={task?.title}
+                      onClick={() => setPreviewImg(el)}
                       className="w-full rounded h-28 md:h-30 2xl:h-52 cursor-pointer transition-all duration-700 hover:scale-125 hover:z-50"
                     />
                   ))}
                 </div>
               </div>
+              {/*Image preview modal*/}
+              {previewImg && (
+                <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center">
+                  {/* Close button */}
+                  <button
+                    onClick={() => setPreviewImg(null)}
+                    className="absolute top-6 right-6 text-white text-3xl font-bold hover:scale-110"
+                  >
+                    <MdCancel />
+                  </button>
+
+                  {/* Image */}
+                  <img
+                    src={previewImg}
+                    alt="Preview"
+                    className="max-w-[90%] max-h-[90%] rounded-lg shadow-2xl"
+                  />
+                </div>
+              )}
             </div>
           </>
         ) : (

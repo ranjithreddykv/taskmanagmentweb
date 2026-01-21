@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { AiTwotoneFolderOpen } from "react-icons/ai";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { HiDuplicate } from "react-icons/hi";
-import { MdAdd, MdOutlineEdit } from "react-icons/md";
+import { MdAdd, MdOutlineDelete, MdOutlineEdit } from "react-icons/md";
 import {
   Menu,
   MenuButton,
@@ -15,6 +15,9 @@ import { BsThreeDots } from "react-icons/bs";
 import AddTask from "./AddTask";
 import AddSubTask from "./AddSubTask";
 import ConfirmationDialog from "../Dialog";
+import { useTrashTaskMutation } from "../../redux/slices/api/taskApiSlice";
+import Loader from "../Loader";
+import { toast } from "sonner";
 const TaskDialog = ({ task }) => {
   const [open, setOpen] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
@@ -44,8 +47,14 @@ const TaskDialog = ({ task }) => {
       icon: <HiDuplicate className="mr-2 h-5 w-5 " aria-hidden="true" />,
       onClick: () => duplicateHandler(),
     },
+    
   ];
-  const deleteClicks = () => {};
+  const [trash,{isLoading}]=useTrashTaskMutation()
+  const deleteClicks =async () => {
+    const res=await trash(task)
+    toast.success(res.message || "Message Trashed successfully");
+    
+  };
   const deleteHandler = () => {};
   return (
     <>
@@ -86,15 +95,16 @@ const TaskDialog = ({ task }) => {
                   {({ focus }) => (
                     <button
                       onClick={() => deleteClicks()}
+                      disabled={isLoading}
                       className={`${
-                        focus ? "bg-blue-500 text-white" : "text-red-900"
+                        focus ? "bg-red-500 p-2 text-white" : "text-red-500"
                       } group flex w-full items-center rounded-md px-2 text-sm`}
                     >
-                      <RiDeleteBin6Line
-                        className="mr-2 h-5 w-5 text-red-400"
+                      <MdOutlineDelete
+                        className="mr-2 h-5 w-5"
                         aria-hidden="true"
                       />
-                      Delete
+                      Trash
                     </button>
                   )}
                 </MenuItem>

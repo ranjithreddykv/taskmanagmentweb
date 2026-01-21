@@ -17,14 +17,14 @@ import {
 
 const LISTS = ["TODO", "IN PROGRESS", "COMPLETED"];
 const PRIORITY = ["HIGH", "MEDIUM", "NORMAL", "LOW"];
-const AddTask = ({ open, setOpen }) => {
-  const task = "";
+const AddTask = ({ open, setOpen, task }) => {
+  
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
-
+  const title=task?.title;
   const [team, setTeam] = useState(task?.team || []);
   const [stage, setStage] = useState(task?.stage?.toUpperCase() || LISTS[0]);
   const [priority, setPriority] = useState(
@@ -34,29 +34,29 @@ const AddTask = ({ open, setOpen }) => {
 
   const [createTask, { isLoading }] = useCreateTaskMutation();
   const [updateTask, { isLoading: isUpdating }] = useUpdateTaskMutation();
-  const { refetch } = useGetAllTaskQuery();
+  const { refetch } = useGetAllTaskQuery({});
   const submitHandler = async (data) => {
     try {
       const formData = new FormData();
       formData.append("title", data?.title);
       formData.append("date", data.date);
       formData.append("priority", priority);
-      
+
       formData.append("stage", stage);
-      team.forEach((id)=>{
-        formData.append("team",id);
+      team.forEach((id) => {
+        formData.append("team", id);
         console.log(id);
-      })
-      
-      assets.forEach((file)=>{
-        formData.append("assets",file);
-      })
-      
-      const res = task._id
-        ? await updateTask({ id: task._id, data: formData })
+      });
+
+      assets.forEach((file) => {
+        formData.append("assets", file);
+      });
+
+      const res = task?._id
+        ? await updateTask({ id: task?._id, data: formData })
         : await createTask(formData);
       console.log(res);
-      toast.success(res.message);
+      toast.success(res.message || "Task Created successfully");
       setTimeout(() => {
         setOpen(false);
       }, 500);
@@ -87,6 +87,7 @@ const AddTask = ({ open, setOpen }) => {
         <div className="flex flex-col gap-6">
           {/* Task Title */}
           <Textbox
+            title={title}
             placeholder="Task Title"
             type="text"
             name="title"

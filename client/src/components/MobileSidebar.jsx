@@ -8,7 +8,6 @@ import { IoMdClose } from "react-icons/io";
 
 const MobileSidebar = () => {
   const { isSidebarOpen } = useSelector((state) => state.auth);
-  console.log(isSidebarOpen);
   const dispatch = useDispatch();
   const menuRef = useRef(null);
 

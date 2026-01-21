@@ -98,6 +98,7 @@ const Users = () => {
               {getInitials(user.name)}
             </span>
           </div>
+          <span>{user.name}</span>
         </div>
       </td>
       <td className="p-2">{user.title}</td>
