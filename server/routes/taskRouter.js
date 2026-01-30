@@ -8,7 +8,6 @@ import {
   duplicateTask,
   getTask,
   getTasks,
-  getTrashedTasks,
   postTaskActivity,
   trashTask,
   updateTask,
@@ -16,7 +15,13 @@ import {
 import { upload } from "../middleware/multerMiddleware.js";
 const router = express.Router();
 
-router.post("/create", protectRoute, isAdminRoute,upload.array("assets"), createTask);
+router.post(
+  "/create",
+  protectRoute,
+  isAdminRoute,
+  upload.array("assets"),
+  createTask,
+);
 router.post("/duplicate/:id", protectRoute, isAdminRoute, duplicateTask);
 router.post("/activity/:id", protectRoute, postTaskActivity);
 
@@ -27,15 +32,12 @@ router.get("/:id", protectRoute, getTask);
 router.put("/create-subtask/:id", protectRoute, isAdminRoute, createSubTask);
 router.put("/update/:id", protectRoute, isAdminRoute, updateTask);
 router.put("/:id", protectRoute, isAdminRoute, trashTask);
-router.get("/trashed-tasks",protectRoute,getTrashedTasks);
 router.delete(
   "/delete-restore/:id",
   protectRoute,
   isAdminRoute,
-  deleteRestoreTask
+  deleteRestoreTask,
 );
 router.delete("/delete-restore", protectRoute, isAdminRoute, deleteRestoreTask);
-
-
 
 export default router;

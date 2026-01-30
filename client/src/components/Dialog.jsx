@@ -27,7 +27,7 @@ const ConfirmationDialog = ({open,setOpen,msg,onClick=()=>{},type='delete' ,setM
                     type='button'
                     className={clsx("px-8 text-sm font-semibold text-white sm:w-auto",type==="restore" || type==="restoreAll" ? "bg-yellow-600":"bg-red-600 hover:bg-red-500")}
                     onClick={onClick}
-                    label={type ==="restore" ? "Restore" : "Delete"}
+                    label={type ==="restore" || type==="restoreAll" ? "Restore" : "Delete"}
                    />
                    <Button
                    type='button'

@@ -308,21 +308,15 @@ export const trashTask = async (req, res) => {
     return res.status(400).json({ status: false, message: error.message });
   }
 };
-export const getTrashedTasks = async (req, res) => {
-  try {
-    const trashedTasks = await Task.find({ isTrashed: true });
-    console.log("trashedTasks :",trashedTasks);
-    return res.statsu(200).json({status:true,trashedTasks})
-  } catch (error) {
-    return res.status(400).json({ status: false, message: error.message });
-  }
-};
+
 export const deleteRestoreTask = async (req, res) => {
   try {
+    console.log("HI")
     const { id } = req.params;
-    const { actionType } = req.body;
-
+    const {actionType}  = req.query;
+   console.log(id,actionType);
     if (actionType === "delete") {
+      console.log("delete")
       await Task.findByIdAndDelete(id);
     } else if (actionType === "deleteAll") {
       await Task.deleteMany({ isTrashed: true });

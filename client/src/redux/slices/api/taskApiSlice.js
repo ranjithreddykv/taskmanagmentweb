@@ -12,17 +12,17 @@ export const taskApiSlice = apiSlice.injectEndpoints({
       }),
     }),
     getAllTask: builder.query({
-      query: ({ stage, isTrashed, search }={}) => {
-       const params = new URLSearchParams();
-       if(stage) params.append("stage",stage);
-       if(isTrashed) params.append("isTrashed",isTrashed);
-       if(search) params.append("search",search);
+      query: ({ stage, isTrashed, search } = {}) => {
+        const params = new URLSearchParams();
+        if (stage) params.append("stage", stage);
+        if (isTrashed) params.append("isTrashed", isTrashed);
+        if (search) params.append("search", search);
 
-       return {
-        url:`${TASK_URL}?${params.toString()}`,
-        method:"GET",
-        credentials:"include"
-       }
+        return {
+          url: `${TASK_URL}?${params.toString()}`,
+          method: "GET",
+          credentials: "include",
+        };
       },
     }),
     createTask: builder.mutation({
@@ -63,13 +63,13 @@ export const taskApiSlice = apiSlice.injectEndpoints({
         credentials: "include",
       }),
     }),
-    getTrashedTask:builder.mutation({
-      query:()=>({
-        url:`${TASK_URL}/trashed-tasks`,
-        method:'GET',
-        credentials:true
-      })
-    })
+    deleteRestoreTask: builder.mutation({
+      query: ({id,actionType}) => ({
+        url: `${TASK_URL}/delete-restore/${id}?actionType=${actionType}`,
+        method: "DELETE",
+        credentials: "include",
+      }),
+    }),
   }),
 });
 
@@ -81,5 +81,5 @@ export const {
   useDuplicateTaskMutation,
   useGetTaskDetailQuery,
   useTrashTaskMutation,
-  useGetTrashedTaskMutation
+  useDeleteRestoreTaskMutation,
 } = taskApiSlice;

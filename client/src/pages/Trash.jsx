@@ -10,9 +10,9 @@ import Title from "../components/Title";
 import Button from "../components/Button";
 import clsx from "clsx";
 import { PRIORITYSTYLES, TASK_TYPE } from "../utils";
-
+import {toast} from "sonner"
 import ConfirmationDialog from "../components/Dialog";
-import { useGetAllTaskQuery } from "../redux/slices/api/taskApiSlice";
+import { useDeleteRestoreTaskMutation, useGetAllTaskQuery } from "../redux/slices/api/taskApiSlice";
 
 const ICONS = {
   high: <MdKeyboardArrowUp />,
@@ -22,15 +22,18 @@ const ICONS = {
 };
 
 const Trash = () => {
-  
-  const { data } = useGetAllTaskQuery({stage:"",isTrashed:true,search:""});
-  const tasks=data?.tasks;
+  const { data } = useGetAllTaskQuery({
+    stage: "",
+    isTrashed: true,
+    search: "",
+  });
+  const tasks = data?.tasks;
   const [openDialog, setOpenDialog] = useState(false);
   const [open, setOpen] = useState(false);
   const [msg, setMsg] = useState(null);
   const [type, setType] = useState("delete");
   const [selected, setSelected] = useState("");
-
+  const [restoreDelete,{isLoading}] = useDeleteRestoreTaskMutation();
   const deleteAllClick = () => {
     setType("deleteAll");
     setMsg("Do you want to permanantly delete all items?");
@@ -41,17 +44,43 @@ const Trash = () => {
     setMsg("Do you want to restore all items in the trash?");
     setOpenDialog(true);
   };
-  const deleteClick = () => {
+  const deleteClick = (id) => {
+    setSelected(id);
     setType("delete");
     setMsg("Do you want to permanantly delete this item?");
     setOpenDialog(true);
+    
   };
-  const restoreClick = () => {
+  const restoreClick = (id) => {
+    setSelected(id);
     setType("restore");
     setMsg("Do you want to restore this item?");
     setOpenDialog(true);
+
   };
-  const deleteRestoreHandler = () => {};
+  const deleteRestoreHandler = async() => {
+    try {
+      console.log(type);
+      const res = await restoreDelete({actionType:type,id:selected}).unwrap();
+      console.log(selected);
+      if(type==="delete"){
+        toast.success(res.message || "Task deleted successfully");
+      }
+      else if(type==="restore"){
+        toast.success(res.message || "Task restored successfully");
+      }
+      else if(type==="deleteAll"){
+        toast.success(res.message || "All trashed tasks permanently deleted successfully");
+      }
+      else if(type==="restoreAll"){
+        toast.success(res.message || "All tasks restored successfully");
+      }
+      setOpenDialog(false);
+      setSelected("");
+    } catch (error) {
+      toast.error(error?.data?.message || error.message);
+    }
+  };
   const TableHeader = () => (
     <thead className="border-b border-gray-300 bg-gray-50">
       <tr className="text-gray-700 text-left">
@@ -63,7 +92,10 @@ const Trash = () => {
     </thead>
   );
   const TableRow = ({ item }) => (
-    <tr className="border-b border-gray-200 dark:border-gray-700 text-gray-900  hover:bg-gray-400/10">
+    <tr
+      onClick={() => setSelected(item?._id)}
+      className="border-b border-gray-200 dark:border-gray-700 text-gray-900  hover:bg-gray-400/10"
+    >
       <td className="py-2">
         <div className="flex items-center gap-2">
           <div
@@ -82,6 +114,7 @@ const Trash = () => {
           <span className="">{item?.priority}</span>
         </div>
       </td>
+      <td className="py-2 text-sm capitalize">{item?.stage}</td>
       <td className="py-2 text-sm">{new Date(item?.date).toDateString()}</td>
       <td className="py-2 flex gap-1 justify-end">
         <Button
@@ -130,8 +163,8 @@ const Trash = () => {
             <table className="w-full mb-5">
               <TableHeader />
               <tbody>
-                {tasks?.map((tk, _id) => (
-                  <TableRow key={_id} item={tk} />
+                {tasks?.map((tk) => (
+                  <TableRow key={tk._id} item={tk} />
                 ))}
               </tbody>
             </table>
