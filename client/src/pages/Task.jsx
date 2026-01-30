@@ -31,10 +31,14 @@ const Task = () => {
   const [open, setOpen] = useState(false);
   const status =
     params?.status === "in-progress" ? "in progress" : params?.status || "";
-  const { data, isLoading } = useGetAllTaskQuery({
+  const { data, isLoading, isFetching} = useGetAllTaskQuery({
     stage: status,
     isTrashed: "",
     search: "",
+  },{
+    pollingInterval:5000,
+    refetchOnFocus:true,
+    refetchOnReconnect:true
   });
   if (isLoading)
     return (
@@ -43,6 +47,9 @@ const Task = () => {
         <Loader />
       </div>
     );
+    {
+      isFetching && <p className="text-sm text-gray-400">Updating...</p>;
+    }
 
   return (
     <div className="w-full relative">

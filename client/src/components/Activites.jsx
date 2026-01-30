@@ -5,6 +5,8 @@ import { GrInProgress } from "react-icons/gr";
 import { MdOutlineDoneAll, MdOutlineMessage } from "react-icons/md";
 import Loading from "./Loader";
 import Button from "./Button";
+import { useAddTaskActivityMutation } from "../redux/slices/api/taskApiSlice";
+import { toast } from "sonner";
 
 // Define task type icon mapping
 
@@ -59,16 +61,32 @@ const ActivityCard = ({ item, isLast }) => {
 
   return (
     <div className="relative flex items-start space-x-4">
-      {/* Left: Icon + connecting line */}
-      <div className="relative flex flex-col items-center">
+      {/* Icon */}
+      {/* Icon + Tooltip wrapper */}
+      <div className="relative group cursor-pointer">
+        {/* Icon */}
         {icon}
 
-        {/* Line connecting to the next activity */}
-        {!isLast && (
-          <div className="absolute top-10 bottom-0 w-[2px] bg-gray-300 h-[calc(100%+4.0rem)]"></div>
-        )}
+        {/* Tooltip */}
+        <div
+          className="
+      absolute left-12 top-1/2 -translate-y-1/2
+      scale-0 group-hover:scale-100
+      transition-transform duration-200
+      bg-blue-500 text-white text-xs
+      px-2 py-1 rounded
+      whitespace-nowrap
+      z-50
+    "
+        >
+          {item.activity}
+        </div>
       </div>
 
+      {/* Line connecting to next activity */}
+      {!isLast && (
+        <div className="absolute top-10 bottom-0 w-[2px] bg-gray-300 h-[calc(100%+4.0rem)]" />
+      )}
       {/* Right: Details */}
       <div className="flex flex-col gap-y-1 mb-10">
         <p className="font-semibold text-gray-800">
@@ -88,11 +106,23 @@ const ActivityCard = ({ item, isLast }) => {
 };
 
 // 🔹 Main component
-const Activities = ({ activity = [] }) => {
+const Activities = ({ activity = [] , id }) => {
   const [selected, setSelected] = useState(ACTIVITY_TYPES[0]);
   const [text, setText] = useState("");
-  const isLoading = false;
-  const handleSubmit = () => {};
+  
+  const [addActivity , {isLoading}] = useAddTaskActivityMutation();
+  const handleSubmit = async() => {
+      try {
+        const data={};
+        data.type=selected
+        data.activity=text
+        const res = await addActivity({id,data})  
+        toast.success(res.message || "Activity created successfully");
+
+      } catch (error) {
+        toast.error(error.message || "Error occured while creating activity");
+      }
+  };
   return (
     <div className="w-full flex flex-col md:flex-row gap-10 min-h-screen px-10 py-8 bg-white shadow rounded-md justify-between overflow-y-auto">
       {/* Left - Timeline Activity Feed */}

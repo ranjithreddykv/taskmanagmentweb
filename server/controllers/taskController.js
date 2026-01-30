@@ -52,7 +52,7 @@ export const createTask = async (req, res) => {
       .status(200)
       .json({ status: true, message: "Task created successfully." });
   } catch (error) {
-    console.error("Task Createion Error", error);
+    console.error("Task Createion Error : ", error.message);
     const statusCode = error.name === "ValidationError" ? 400 : 500;
     return res
       .status(statusCode)
@@ -102,19 +102,23 @@ export const postTaskActivity = async (req, res) => {
     const { id } = req.params;
     const { userId } = req.user;
     const { type, activity } = req.body;
+
     const task = await Task.findById(id);
+    const lowerType=type.toLowerCase();
     const data = {
-      type,
+      type:lowerType,
       activity,
       by: userId,
     };
     task.activities.push(data);
     await task.save();
+
     res
       .status(200)
       .json({ status: true, message: "Activity posted successfully . " });
   } catch (error) {
-    return res.status(400).json({ status: false, message: error.message });
+    console.log(error);
+    return res.status(400).json({ status: false, message: error });
   }
 };
 export const dashboardStatistics = async (req, res) => {
@@ -183,7 +187,6 @@ export const dashboardStatistics = async (req, res) => {
         inProgressCount++;
       }
     }
-    // console.log(last10Tasks);
     const summary = {
       totalTasks,
       last10Tasks,
@@ -299,7 +302,6 @@ export const updateTask = async (req, res) => {
 export const trashTask = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log(id);
     await Task.findByIdAndUpdate(id, { isTrashed: true });
     return res
       .status(200)
@@ -311,12 +313,11 @@ export const trashTask = async (req, res) => {
 
 export const deleteRestoreTask = async (req, res) => {
   try {
-    console.log("HI")
+
     const { id } = req.params;
     const {actionType}  = req.query;
-   console.log(id,actionType);
+
     if (actionType === "delete") {
-      console.log("delete")
       await Task.findByIdAndDelete(id);
     } else if (actionType === "deleteAll") {
       await Task.deleteMany({ isTrashed: true });

@@ -15,7 +15,7 @@ import { BsThreeDots } from "react-icons/bs";
 import AddTask from "./AddTask";
 import AddSubTask from "./AddSubTask";
 import ConfirmationDialog from "../Dialog";
-import { useTrashTaskMutation } from "../../redux/slices/api/taskApiSlice";
+import { useDuplicateTaskMutation, useTrashTaskMutation } from "../../redux/slices/api/taskApiSlice";
 import Loader from "../Loader";
 import { toast } from "sonner";
 const TaskDialog = ({ task }) => {
@@ -23,7 +23,15 @@ const TaskDialog = ({ task }) => {
   const [openEdit, setOpenEdit] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const navigate = useNavigate();
-  const duplicateHandler = () => {};
+  const [duplicateTask] = useDuplicateTaskMutation();
+  const duplicateHandler = async() => {
+    try {
+      const res = await duplicateTask(task._id);
+      toast.success(res.message || "Duplicate Task created successfully");
+    } catch (error) {
+      toast.error(error.message || "Somthing went wrong");
+    }
+  };
   const items = [
     {
       label: "Open Task",
@@ -55,6 +63,7 @@ const TaskDialog = ({ task }) => {
     toast.success(res.message || "Message Trashed successfully");
     
   };
+ 
   const deleteHandler = () => {};
   return (
     <>
@@ -119,7 +128,7 @@ const TaskDialog = ({ task }) => {
         task={task}
         key={new Date().getTime}
       />
-      <AddSubTask open={open} setOpen={setOpen} />
+      <AddSubTask open={open} setOpen={setOpen} id={task?._id}/>
       <ConfirmationDialog
         open={openDialog}
         setOpen={setOpenDialog}

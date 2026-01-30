@@ -3,6 +3,8 @@ import ModalWrapper from "../ModalWrapper";
 import { DialogTitle } from "@headlessui/react";
 import Textbox from "../Textbox";
 import Button from "../Button";
+import { useAddSubTaskMutation} from "../../redux/slices/api/taskApiSlice";
+import { toast } from "sonner";
 
 const AddSubTask = ({ open, setOpen, id }) => {
   const {
@@ -10,7 +12,16 @@ const AddSubTask = ({ open, setOpen, id }) => {
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const handleOnSubmit = async (data) => {};
+  const [addSubTask] = useAddSubTaskMutation();
+  const handleOnSubmit = async (data) => {
+    try {
+      const res = await addSubTask({data,id});
+      toast.success(res.message || "Sub-task created successfully")
+
+    } catch (error) {
+      toast.error(error.message || "Somthing went wrong try again");
+    }
+  };
   return (
     <>
       <ModalWrapper open={open} setOpen={setOpen}>
