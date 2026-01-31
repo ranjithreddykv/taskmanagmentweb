@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { MdGridView } from "react-icons/md";
 import { FaList } from "react-icons/fa";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import Loader from "../components/Loader";
 import Title from "../components/Title";
 import Button from "../components/Button";
@@ -26,20 +26,28 @@ const TASK_TYPE = {
 };
 
 const Task = () => {
-  const params = useParams();
+  const {status} = useParams();
   const [selected, setSelected] = useState(0);
   const [open, setOpen] = useState(false);
-  const status =
-    params?.status === "in-progress" ? "in progress" : params?.status || "";
-  const { data, isLoading, isFetching} = useGetAllTaskQuery({
-    stage: status,
-    isTrashed: "",
-    search: "",
-  },{
-    pollingInterval:5000,
-    refetchOnFocus:true,
-    refetchOnReconnect:true
-  });
+const [searchParams] = useSearchParams();
+    let stage = "";
+    let isTrashed = false;
+  if (status === "in-progress") stage = "in progress";
+  else if (status === "completed") stage = "completed";
+  else if (status === "todo") stage = "todo";
+  const search = searchParams.get("search") || "";
+  const { data, isLoading, isFetching } = useGetAllTaskQuery(
+    {
+      stage,
+      isTrashed:"",
+      search,
+    },
+    {
+      pollingInterval: 5000,
+      refetchOnFocus: true,
+      refetchOnReconnect: true,
+    },
+  );
   if (isLoading)
     return (
       <div className="py-10">
@@ -47,9 +55,9 @@ const Task = () => {
         <Loader />
       </div>
     );
-    {
-      isFetching && <p className="text-sm text-gray-400">Updating...</p>;
-    }
+  {
+    isFetching && <p className="text-sm text-gray-400">Updating...</p>;
+  }
 
   return (
     <div className="w-full relative">

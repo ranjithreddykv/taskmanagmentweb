@@ -3,6 +3,7 @@ import {
   MdAttachFile,
   MdKeyboardArrowDown,
   MdKeyboardArrowUp,
+  MdKeyboardDoubleArrowDown,
   MdKeyboardDoubleArrowUp,
 } from "react-icons/md";
 import { BiMessageAltDetail } from "react-icons/bi";
@@ -10,14 +11,14 @@ import { FaList } from "react-icons/fa";
 import clsx from "clsx";
 // import { tasks } from "../../assets/data";
 import { BGS, formatDate, PRIORITYSTYLES, TASK_TYPE } from "../../utils";
-import Button from "../Button";
 import UserInfo from "../user/UserInfo";
 import ConfirmationDialog from "../Dialog";
-
+import TaskDialog from "./TaskDialog";
 const ICONS = {
-  high: <MdKeyboardDoubleArrowUp />,
-  medium: <MdKeyboardArrowUp />,
-  low: <MdKeyboardArrowDown />,
+  low: <MdKeyboardDoubleArrowDown className="text-green-500 text-lg" />,
+  high: <MdKeyboardDoubleArrowUp className="text-red-500 text-lg" />,
+  medium: <MdKeyboardArrowUp className="text-yellow-500 text-lg" />,
+  normal: <MdKeyboardArrowDown className="text-blue-500 text-lg" />,
 };
 
 const TableHeader = () => (
@@ -37,7 +38,7 @@ const TableHeader = () => (
   </thead>
 );
 
-const TableRow = ({ task, onDelete }) => (
+const TableRow = ({ task}) => (
   <tr className="border-b border-gray-200 text-gray-700 hover:bg-gray-100/50">
     {/* Task Title */}
     <td className="py-3 px-4">
@@ -94,7 +95,7 @@ const TableRow = ({ task, onDelete }) => (
             key={m._id}
             className={clsx(
               "w-7 h-7 rounded-full text-white flex items-center justify-center text-sm -mr-1",
-              BGS[index % BGS?.length]
+              BGS[index % BGS?.length],
             )}
           >
             <UserInfo user={m} index={index} />
@@ -105,34 +106,13 @@ const TableRow = ({ task, onDelete }) => (
 
     {/* Actions */}
     <td className="py-3 px-4 text-right">
-      <div className="flex justify-end gap-2">
-        <Button
-          className="text-blue-600 hover:text-blue-500 text-sm md:text-base border-1 bg-blue-200 hover:bg-blue-300 hover:border-0 p-1 rounded-md"
-          label="Edit"
-          type="button"
-        />
-        <Button
-          className="text-red-600 hover:text-red-500 text-sm md:text-base border-red-600 border-1 bg-red-200 hover:bg-red-300 hover:border-0 p-1 rounded-md"
-          label="Delete"
-          type="button"
-          onClick={() => onDelete(task._id)}
-        />
-      </div>
+      <TaskDialog task={task} />
     </td>
   </tr>
 );
 
 const Table = ({tasks}) => {
-  const [openDialog, setOpenDialog] = useState(false);
-  const [selected, setSelected] = useState(null);
 
-  const deleteClicks = (id) => {
-    setSelected(id)
-    setOpenDialog(true);
-  };
-  const deleteHandler=()=>{
-
-  }
   return (
     <div className="bg-white px-3 md:px-6 pb-6 shadow-md rounded-lg">
       <div className="overflow-x-auto">
@@ -140,16 +120,12 @@ const Table = ({tasks}) => {
           <TableHeader />
           <tbody>
             {tasks.map((task, index) => (
-              <TableRow key={index} task={task} onDelete={deleteClicks} />
+              <TableRow key={index} task={task}/>
             ))}
           </tbody>
         </table>
       </div>
-      <ConfirmationDialog
-        open={openDialog}
-        setOpen={setOpenDialog}
-        onClick={deleteHandler}
-      />
+      
     </div>
   );
 };

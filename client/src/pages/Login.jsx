@@ -23,7 +23,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   const [login, { isLoading }] = useLoginMutation();
-  const [refetch] = useGetNotificationsQuery();
+ // const [data,{refetch}] = useGetNotificationsQuery();
   const submitHandler = async (data) => {
     try {
       const result = await login(data);
@@ -37,7 +37,7 @@ const Login = () => {
       }
       toast.success("Login Successfully!");
       dispatch(setCredentials(result));
-      refetch();
+      //refetch();
       navigate("/dashboard");
     } catch (error) {
       console.log("Unexpected error:", error);

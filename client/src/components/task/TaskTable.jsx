@@ -1,19 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
 import clsx from "clsx";
 import moment from "moment";
 import {
   MdKeyboardDoubleArrowUp,
   MdKeyboardArrowUp,
   MdKeyboardArrowDown,
+  MdKeyboardDoubleArrowDown,
 } from "react-icons/md";
 import { BGS, TASK_TYPE } from "../../utils";
 import UserInfo from "../user/UserInfo";
+import { useSelector } from "react-redux";
 
 const TaskTable = ({ tasks = [] }) => {
+  const {user} = useSelector((state)=>state.auth);
+  const [open , setOpen] = useState(false);
   const ICONS = {
+    low: <MdKeyboardDoubleArrowDown className="text-green-500 text-lg"/>,
     high: <MdKeyboardDoubleArrowUp className="text-red-500 text-lg" />,
     medium: <MdKeyboardArrowUp className="text-yellow-500 text-lg" />,
-    normal: <MdKeyboardArrowDown className="text-green-500 text-lg" />,
+    normal: <MdKeyboardArrowDown className="text-blue-500 text-lg" />,
   };
 
   const TableHeader = () => (
@@ -57,6 +62,8 @@ const TaskTable = ({ tasks = [] }) => {
                 ? "bg-red-100 text-red-700"
                 : task.priority === "medium"
                 ? "bg-yellow-100 text-yellow-700"
+                :task.priority === "normal" 
+                ?"bg-blue-100 text-blue-500"
                 : "bg-green-100 text-green-700"
             )}
           >

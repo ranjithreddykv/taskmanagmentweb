@@ -22,6 +22,7 @@ router.post(
   upload.array("assets"),
   createTask,
 );
+
 router.post("/duplicate/:id", protectRoute, isAdminRoute, duplicateTask);
 router.post("/activity/:id", protectRoute, postTaskActivity);
 

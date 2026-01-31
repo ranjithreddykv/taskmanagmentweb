@@ -56,6 +56,10 @@ const taskSchema = new Schema(
   },
   { timestamps: true }
 );
+taskSchema.index({ title: "text" });
+taskSchema.index({ createdAt: -1 });
+taskSchema.index({ team: 1 });
+
 
 const Task = mongoose.model("Task", taskSchema);
 

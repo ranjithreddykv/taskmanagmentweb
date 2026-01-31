@@ -26,6 +26,19 @@ export function getInitials(fullName) {
   return initialStr;
 }
 
+export const updateURL = ({ searchTerm, navigate, location }) => {
+  const params = new URLSearchParams();
+
+  if (searchTerm) {
+    params.set("search", searchTerm);
+  }
+
+  const newURL = `${location?.pathname}?${params.toString()}`;
+  navigate(newURL, { replace: true });
+
+  return newURL;
+};
+
 export const PRIORITYSTYLES = {
   high: "text-red-600",
   medium: "text-yellow-600",

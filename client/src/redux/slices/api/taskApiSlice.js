@@ -15,7 +15,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
       query: ({ stage, isTrashed, search } = {}) => {
         const params = new URLSearchParams();
         if (stage) params.append("stage", stage);
-        if (isTrashed) params.append("isTrashed", isTrashed);
+        if (isTrashed !== undefined) params.append("isTrashed", isTrashed);
         if (search) params.append("search", search);
 
         return {
@@ -80,13 +80,14 @@ export const taskApiSlice = apiSlice.injectEndpoints({
       }),
     }),
     addTaskActivity: builder.mutation({
-      query:({id,data}) => ({
-         url: `${TASK_URL}/activity/${id}`,
+      query: ({ id, data }) => ({
+        url: `${TASK_URL}/activity/${id}`,
         method: "POST",
         body: data,
         credentials: "include",
-      })
-    })
+      }),
+    }),
+
   }),
 });
 
@@ -100,5 +101,5 @@ export const {
   useTrashTaskMutation,
   useDeleteRestoreTaskMutation,
   useAddSubTaskMutation,
-  useAddTaskActivityMutation
+  useAddTaskActivityMutation,
 } = taskApiSlice;

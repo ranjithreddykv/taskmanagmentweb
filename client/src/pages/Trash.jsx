@@ -10,9 +10,13 @@ import Title from "../components/Title";
 import Button from "../components/Button";
 import clsx from "clsx";
 import { PRIORITYSTYLES, TASK_TYPE } from "../utils";
-import {toast} from "sonner"
+import { toast } from "sonner";
 import ConfirmationDialog from "../components/Dialog";
-import { useDeleteRestoreTaskMutation, useGetAllTaskQuery } from "../redux/slices/api/taskApiSlice";
+import {
+  useDeleteRestoreTaskMutation,
+  useGetAllTaskQuery,
+} from "../redux/slices/api/taskApiSlice";
+import { useSearchParams } from "react-router-dom";
 
 const ICONS = {
   high: <MdKeyboardArrowUp />,
@@ -22,10 +26,12 @@ const ICONS = {
 };
 
 const Trash = () => {
+  const [searchParams] = useSearchParams();
+  const search = searchParams.get("search") || "";
   const { data } = useGetAllTaskQuery({
     stage: "",
     isTrashed: true,
-    search: "",
+    search,
   });
   const tasks = data?.tasks;
   const [openDialog, setOpenDialog] = useState(false);
@@ -33,7 +39,7 @@ const Trash = () => {
   const [msg, setMsg] = useState(null);
   const [type, setType] = useState("delete");
   const [selected, setSelected] = useState("");
-  const [restoreDelete,{isLoading}] = useDeleteRestoreTaskMutation();
+  const [restoreDelete, { isLoading }] = useDeleteRestoreTaskMutation();
   const deleteAllClick = () => {
     setType("deleteAll");
     setMsg("Do you want to permanantly delete all items?");
@@ -49,30 +55,30 @@ const Trash = () => {
     setType("delete");
     setMsg("Do you want to permanantly delete this item?");
     setOpenDialog(true);
-    
   };
   const restoreClick = (id) => {
     setSelected(id);
     setType("restore");
     setMsg("Do you want to restore this item?");
     setOpenDialog(true);
-
   };
-  const deleteRestoreHandler = async() => {
+  const deleteRestoreHandler = async () => {
     try {
       console.log(type);
-      const res = await restoreDelete({actionType:type,id:selected}).unwrap();
+      const res = await restoreDelete({
+        actionType: type,
+        id: selected,
+      }).unwrap();
       console.log(selected);
-      if(type==="delete"){
+      if (type === "delete") {
         toast.success(res.message || "Task deleted successfully");
-      }
-      else if(type==="restore"){
+      } else if (type === "restore") {
         toast.success(res.message || "Task restored successfully");
-      }
-      else if(type==="deleteAll"){
-        toast.success(res.message || "All trashed tasks permanently deleted successfully");
-      }
-      else if(type==="restoreAll"){
+      } else if (type === "deleteAll") {
+        toast.success(
+          res.message || "All trashed tasks permanently deleted successfully",
+        );
+      } else if (type === "restoreAll") {
         toast.success(res.message || "All tasks restored successfully");
       }
       setOpenDialog(false);

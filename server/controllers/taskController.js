@@ -1,9 +1,7 @@
 import Notice from "../models/notification.js";
 import Task from "../models/task.js";
 import User from "../models/user.js";
-import fs from "fs";
 import { uploadOnCloduinary } from "../utils/cloudinary.js";
-import mongoose from "mongoose";
 export const createTask = async (req, res) => {
   const filePathsToClean = [];
   try {
@@ -211,10 +209,21 @@ export const dashboardStatistics = async (req, res) => {
 //get all the tasks;
 export const getTasks = async (req, res) => {
   try {
-    const { stage, isTrashed } = req.query;
+    const { stage, isTrashed,search } = req.query;
     let query = { isTrashed: isTrashed ? true : false };
     if (stage) {
       query.stage = stage;
+    }
+    if(search){
+      const users = await User.find({
+        name:{$regex:search , $options:"i"},
+      }).select("_id");
+      const userIds = users.map((u)=>u._id);
+      query.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+        {team:{$in:userIds}}
+      ];
     }
 
     let queryResult = Task.find(query)
@@ -310,6 +319,7 @@ export const trashTask = async (req, res) => {
     return res.status(400).json({ status: false, message: error.message });
   }
 };
+
 
 export const deleteRestoreTask = async (req, res) => {
   try {
