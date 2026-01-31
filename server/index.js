@@ -21,7 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: ["https://taskmanweb.netlify.app/"],
+    origin: ["https://taskmanweb.netlify.app"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   }),
