@@ -21,7 +21,7 @@ const app = express();
 app.set("trust proxy", 1);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cookieParser());
 app.use(cors({
     origin : ["https://taskmanweb.netlify.app","http://localhost:3000","http://localhost:5173"] ,
     methods : ["GET","POST","PUT","DELETE"],
@@ -29,7 +29,6 @@ app.use(cors({
 }))
 
 
-app.use(cookieParser());
 app.use(morgan("dev"));
 
 app.use("/api/v1",routes);
