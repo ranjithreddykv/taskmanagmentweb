@@ -24,7 +24,7 @@ const TableRow = ({ user, id }) => (
         <div
           className={clsx(
             "w-10 h-10 rounded-full text-white flex items-center justify-center text-sm font-medium shadow-sm",
-            BGS[id % BGS.length]
+            BGS[id % BGS.length],
           )}
         >
           <span>{getInitials(user?.name)}</span>
@@ -43,12 +43,12 @@ const TableRow = ({ user, id }) => (
       <p
         className={clsx(
           "inline-block px-3 py-1 rounded-full text-xs font-medium capitalize",
-          user?.isActive
+          user.isActive
             ? "bg-green-100 text-green-700"
-            : "bg-red-100 text-red-700"
+            : "bg-red-100 text-red-700",
         )}
       >
-        {user?.isActive ? "Active" : "Disabled"}
+        {user.isActive ? "Active" : "Disabled"}
       </p>
     </td>
 

@@ -145,7 +145,7 @@ export const dashboardStatistics = async (req, res) => {
 
     // selecting all active users
     const users = await User.find({ isActive: true })
-      .select("name title role isAdmin createdAt")
+      .select("name title role isActive createdAt")
       .limit(10)
       .sort({ _id: -1 });
 

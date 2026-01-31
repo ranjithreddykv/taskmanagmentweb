@@ -11,7 +11,10 @@ import { BiSolidMessageRounded } from "react-icons/bi";
 import { HiBellAlert } from "react-icons/hi2";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { Link } from "react-router-dom";
-import { useGetNotificationsQuery, useMarkNotiAsReadMutation } from "../redux/slices/api/userApiSlice";
+import {
+  useGetNotificationsQuery,
+  useMarkNotiAsReadMutation,
+} from "../redux/slices/api/userApiSlice";
 import { toast } from "sonner";
 import ViewNotificatiion from "./ViewNotification";
 
@@ -21,25 +24,39 @@ const ICONS = {
 };
 
 const NotificationPanel = () => {
+  const { data=[], refetch } = useGetNotificationsQuery();
+  const [marksAsRead] = useMarkNotiAsReadMutation();
   const [selected, setSelected] = useState(null);
-  const [open,setOpen]=useState(null);
-  // Mock data (you can replace this with your API response)
-  const {data,refetch}=useGetNotificationsQuery();
-  const [marksAsRead]=useMarkNotiAsReadMutation();
-  const readHandler = async(type,id) => {
+  const [open, setOpen] = useState(false);
+  /* Mark single notification */
+  const readHandler = async (id) => {
     try {
-      await marksAsRead({ type, id }).unwrap();
+      await marksAsRead({ type: "one", id }).unwrap();
       refetch();
     } catch (error) {
-      console.log("Error occoured while marking notification");
+      toast.error("Failed to mark notification");
     }
   };
-  const viewHandler = async (el)=>{
-    setSelected(el)
-    readHandler("one",el._id);
-  }
-  const markAllRead = async(type,id) => {
-    
+
+  /* Open notification + mark read */
+  const viewHandler = async (item) => {
+    setSelected(item);
+    setOpen(true);
+
+    if (!item.read) {
+      await readHandler(item._id);
+    }
+  };
+
+  /* Mark all notifications */
+  const markAllRead = async () => {
+    try {
+      await marksAsRead({ type: "all",id:"" }).unwrap();
+      refetch();
+      toast.success("All notifications marked as read");
+    } catch (error) {
+      toast.error("Failed to mark all notifications");
+    }
   };
 
   return (
@@ -47,10 +64,10 @@ const NotificationPanel = () => {
       <Popover className="relative">
         <PopoverButton className="inline-flex items-center outline-none">
           <div
-            className={`relative w-10 h-10 flex items-center justify-center 
-                bg-white text-black rounded-full shadow 
-                hover:bg-gray-100 transition
-                ${data?.length > 0 ? "animate-bell" : ""}`}
+            className={`relative w-10 h-10 flex items-center justify-center
+              bg-white text-black rounded-full shadow
+              hover:bg-gray-100 transition
+              ${data?.length > 0 ? "animate-bell" : ""}`}
           >
             <IoNotificationsOutline className="text-2xl" />
             {data?.length > 0 && (
@@ -71,14 +88,16 @@ const NotificationPanel = () => {
           leaveTo="opacity-0 translate-y-1"
         >
           <PopoverPanel
-            className="absolute right-0 z-20 mt-3 w-80 
-                         bg-white border border-gray-200 
-                         shadow-xl rounded-xl p-3"
+            className="absolute right-0 z-20 mt-3 w-80
+            bg-white border border-gray-200
+            shadow-xl rounded-xl p-3"
           >
+            {/* Header */}
             <div className="flex justify-between items-center px-2 pb-2 border-b border-gray-200">
               <h3 className="text-gray-800 font-semibold text-sm">
                 Notifications
               </h3>
+
               {data?.length > 0 && (
                 <button
                   onClick={markAllRead}
@@ -89,20 +108,18 @@ const NotificationPanel = () => {
               )}
             </div>
 
-            {/* Notifications list */}
-            <div className="mt-2 max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
+            {/* List */}
+            <div className="mt-2 max-h-60 overflow-y-auto">
               {data?.length > 0 ? (
-                data?.map((item) => (
+                data.map((item) => (
                   <div
                     key={item._id}
-                    onClick={() => readHandler(item._id)}
-                    className={`flex items-start gap-3 p-2 rounded-lg cursor-pointer transition ${
-                      item.read
-                        ? "bg-transparent hover:bg-gray-100"
-                        : "bg-indigo-50"
-                    }`}
+                    onClick={() => viewHandler(item)}
+                    className={`flex items-start gap-3 p-2 rounded-lg cursor-pointer transition
+                      ${item.read ? "hover:bg-gray-100" : "bg-indigo-50"}`}
                   >
                     <div>{ICONS[item.type]}</div>
+
                     <div className="flex-1">
                       <p
                         className={`text-sm ${
@@ -140,7 +157,9 @@ const NotificationPanel = () => {
           </PopoverPanel>
         </Transition>
       </Popover>
-      <ViewNotificatiion open={open} setOpen={setOpen} el={selected}/>
+
+      {/* Modal */}
+      <ViewNotificatiion open={open} setOpen={setOpen} el={selected} />
     </div>
   );
 };

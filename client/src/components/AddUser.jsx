@@ -19,7 +19,7 @@ const AddUser = ({ open, setOpen, userData, refetch}) => {
   const dispatch = useDispatch();
   const handleOnSubmit = async (data) => {
     try {
-      if (userData._id) {
+      if (userData?._id) {
         const result = await updateUser(data).unwrap();
         refetch();
         toast.success(result?.message||"Profile udpated successully");

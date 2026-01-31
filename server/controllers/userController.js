@@ -5,14 +5,16 @@ import { createJWT } from "../utils/index.js";
 
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password, isAdmin, role, title } = req.body;
+    const { name, email, password, role, title } = req.body;
 
     const userExist = await User.findOne({ email });
+    console.log(userExist);
     if (userExist) {
       return res
         .status(400)
         .json({ status: false, message: "User already exists" });
     }
+    const isAdmin =  role.toLowerCase() === "admin";
     const user = await User.create({
       name,
       email,
@@ -74,6 +76,7 @@ export const logoutUser = async (req, res) => {
 export const getTeamList = async (req, res) => {
   try {
     const users = await User.find().select("name title role email isActive");
+    console.log(users);
     res.status(200).json(users);
   } catch (error) {
     return res.status(400).json({ status: false, message: error.message });
@@ -82,11 +85,12 @@ export const getTeamList = async (req, res) => {
 export const getNotificationList = async (req, res) => {
   try {
     const { userId } = req.user;
-
-    const notice = await Notice.findOne({
-      teamId: userId,
-      isRead: { $nin: [userId] },
+    console.log("UserId :", userId)
+    const notice = await Notice.find({
+      team: userId,
+      isRead: { $ne: userId }, //notification unread for this user
     }).populate("task", "title");
+    console.log("notice : " , notice);
     res.status(201).json(notice);
   } catch (error) {
     return res.status(400).json({ status: false, message: error.message });
@@ -129,8 +133,9 @@ export const updateUserProfile = async (req, res) => {
 export const markNotificationRead = async (req, res) => {
   try {
     const { userId } = req.user;
-    const { isReadType, id } = req.body;
-    if (isReadType === "all") {
+    const { type,id} = req.query;
+    console.log(type,id);
+    if (type === "all") {
       await Notice.updateMany(
         { team: userId, isRead: { $nin: [userId] } },
         { $push: { isRead: userId } },

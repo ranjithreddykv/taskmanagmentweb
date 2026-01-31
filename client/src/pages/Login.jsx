@@ -9,6 +9,7 @@ import { useLoginMutation } from "../redux/slices/api/authApiSlice.js";
 import { toast } from "sonner";
 import { setCredentials } from "../redux/slices/authSlice.js";
 import Loading from "../components/Loader.jsx";
+import { useGetNotificationsQuery } from "../redux/slices/api/userApiSlice.js";
 
 const Login = () => {
   const { user } = useSelector((state) => state.auth);
@@ -22,7 +23,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   const [login, { isLoading }] = useLoginMutation();
-
+  const [refetch] = useGetNotificationsQuery();
   const submitHandler = async (data) => {
     try {
       const result = await login(data);
@@ -36,6 +37,7 @@ const Login = () => {
       }
       toast.success("Login Successfully!");
       dispatch(setCredentials(result));
+      refetch();
       navigate("/dashboard");
     } catch (error) {
       console.log("Unexpected error:", error);
